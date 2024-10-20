@@ -20,16 +20,22 @@ load_dotenv()
 # Check if ffmpeg is available
 def check_ffmpeg_installation():
     try:
-        # Use imageio_ffmpeg to get the path to ffmpeg
-        ffmpeg_exe = ffmpeg.get_ffmpeg_exe()  
+        # Get paths to ffmpeg and ffprobe from imageio_ffmpeg
+        ffmpeg_exe = ffmpeg.get_ffmpeg_exe()
+        ffprobe_exe = ffmpeg.get_ffprobe_exe()
+        
+        # Check if FFmpeg is available
         subprocess.run([ffmpeg_exe, "-version"], check=True, stdout=subprocess.PIPE)
         print("FFmpeg is available.")
-    except subprocess.CalledProcessError as e:
-        st.error("FFmpeg not found.")
-        st.stop()  # Stop execution if ffmpeg is not available
 
-# Call this function at the start of your app
-check_ffmpeg_installation()
+        # Check if FFprobe is available
+        subprocess.run([ffprobe_exe, "-version"], check=True, stdout=subprocess.PIPE)
+        print("FFprobe is available.")
+
+        st.success("FFmpeg and FFprobe installation successful.")
+    except subprocess.CalledProcessError as e:
+        st.error("FFmpeg or FFprobe not found.")
+        st.stop()  # Stop execution if ffmpeg or ffprobe is not available
 
 def check_ffmpeg_and_ffprobe():
     ffmpeg_exe = ffmpeg.get_ffmpeg_exe()
