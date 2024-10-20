@@ -10,8 +10,18 @@ import json
 from pydub import AudioSegment
 import soundfile as sf  
 from dotenv import load_dotenv
+import imageio_ffmpeg as ffmpeg
 load_dotenv()
 
+# Check if ffmpeg is installed using imageio_ffmpeg
+def check_ffmpeg():
+    try:
+        ffmpeg.get_ffmpeg_exe()
+        print("FFmpeg is available!")
+    except Exception as e:
+        st.error(f"FFmpeg error: {str(e)}")
+
+check_ffmpeg()
 
 aai.settings.api_key = os.getenv('ASSEMBLYAI_API_KEY')
 transcriber = aai.Transcriber()
