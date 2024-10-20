@@ -11,17 +11,24 @@ from pydub import AudioSegment
 import soundfile as sf  
 from dotenv import load_dotenv
 import imageio_ffmpeg as ffmpeg
+import shutil
+
+# Load environment variables from .env file
 load_dotenv()
 
-# Check if ffmpeg is installed using imageio_ffmpeg
-def check_ffmpeg():
-    try:
-        ffmpeg.get_ffmpeg_exe()
-        print("FFmpeg is available!")
-    except Exception as e:
-        st.error(f"FFmpeg error: {str(e)}")
+# Check if ffmpeg and ffprobe are available in the system PATH
+def check_ffmpeg_and_ffprobe():
+    ffmpeg_exe = ffmpeg.get_ffmpeg_exe()
+    ffprobe_exe = shutil.which("ffprobe")  # Using shutil to check if ffprobe exists in the PATH
+    if not ffprobe_exe:
+        st.error("FFprobe not found in the system path. Please install ffprobe or add it to the system path.")
+        return False
+    print(f"FFmpeg: {ffmpeg_exe} is available!")
+    print(f"FFprobe: {ffprobe_exe} is available!")
+    return True
 
-check_ffmpeg()
+if not check_ffmpeg_and_ffprobe():
+    st.stop()
 
 aai.settings.api_key = os.getenv('ASSEMBLYAI_API_KEY')
 transcriber = aai.Transcriber()
@@ -81,6 +88,7 @@ def synthesize_speech_with_timeline(corrected_transcription, word_timestamps):
 
     return temp_audio_file.name  # Return the path to the final audio file
 
+# Function to map the corrected transcription to word timestamps
 def map_corrected_transcription_to_timestamps(original_transcription, corrected_transcription, word_timestamps):
     original_words = original_transcription.split()
     corrected_words = corrected_transcription.split()
@@ -96,7 +104,7 @@ def map_corrected_transcription_to_timestamps(original_transcription, corrected_
 
     return aligned_timestamps
 
-
+# Function to increase the speed of the audio using Pydub
 def increase_audio_speed_pydub(audio_file, speed_factor=1.2):
     audio = AudioSegment.from_file(audio_file)
     sped_up_audio = audio.speedup(playback_speed=speed_factor)
@@ -105,6 +113,7 @@ def increase_audio_speed_pydub(audio_file, speed_factor=1.2):
     sped_up_audio.export(temp_sped_up_audio_file.name, format="mp3")
     return temp_sped_up_audio_file.name 
 
+# Function to replace audio in video with the newly generated audio
 def replace_audio_in_video_with_timeline(video_file, new_audio, word_timestamps, speed_factor=1.12):
     video_clip = mp.VideoFileClip(video_file)
     new_audio_sped_up = increase_audio_speed_pydub(new_audio, speed_factor)
@@ -136,8 +145,6 @@ def replace_audio_in_video_with_timeline(video_file, new_audio, word_timestamps,
     
     return temp_output_video.name  
 
-
-
 st.title("Video Audio Replacement with AI")
 video_file = st.file_uploader("Upload your video file", type=["mp4", "mov"])
 
@@ -161,8 +168,9 @@ if video_file is not None:
             st.error("Transcription failed. Please try again.")
         else:
             transcription = transcript.text
-            word_timestamps = transcript.words  
-           
+            word_timestamps = transcript.words 
+
+               
             corrected_transcription = correct_transcription(transcription)
             st.write("New Transcriptions:",corrected_transcription)
 
