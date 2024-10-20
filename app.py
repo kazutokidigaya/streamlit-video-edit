@@ -17,18 +17,16 @@ import subprocess
 # Load environment variables from .env file
 load_dotenv()
 
-# Check if ffmpeg and ffprobe are available in the system PATH
+# Check if ffmpeg is available
 def check_ffmpeg_installation():
     try:
-        # Try running ffmpeg and ffprobe to check if they exist
-        subprocess.run(["ffmpeg", "-version"], check=True, stdout=subprocess.PIPE)
-        subprocess.run(["ffprobe", "-version"], check=True, stdout=subprocess.PIPE)
-        print("FFmpeg and FFprobe are available.")
+        # Use imageio_ffmpeg to get the path to ffmpeg
+        ffmpeg_exe = ffmpeg.get_ffmpeg_exe()  
+        subprocess.run([ffmpeg_exe, "-version"], check=True, stdout=subprocess.PIPE)
+        print("FFmpeg is available.")
     except subprocess.CalledProcessError as e:
-        # FFmpeg/FFprobe are not installed, so we need to install them
-        st.error("FFmpeg or FFprobe not found. Installing now...")
-        subprocess.run(["bash", "setup.sh"], check=True)  # Run the shell script
-        st.success("FFmpeg and FFprobe installation successful.")
+        st.error("FFmpeg not found.")
+        st.stop()  # Stop execution if ffmpeg is not available
 
 # Call this function at the start of your app
 check_ffmpeg_installation()
