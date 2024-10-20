@@ -7,4 +7,5 @@ assemblyai
 groq
 soundfile
 python-dotenv
-ffmpeg
+ffmpeg-python
+imageio[ffmpeg]
