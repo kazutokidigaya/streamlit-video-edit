@@ -1,7 +1,7 @@
 streamlit
 moviepy
 numpy
-pydubx
+pydub
 gtts
 assemblyai
 groq
