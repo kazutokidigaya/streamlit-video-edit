@@ -1,0 +1,8 @@
+streamlit
+moviepy
+numpy
+pydubx
+gtts
+assemblyai
+groq
+soundfile
