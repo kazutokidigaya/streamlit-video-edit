@@ -12,11 +12,27 @@ import soundfile as sf
 from dotenv import load_dotenv
 import imageio_ffmpeg as ffmpeg
 import shutil
+import subprocess
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Check if ffmpeg and ffprobe are available in the system PATH
+def check_ffmpeg_installation():
+    try:
+        # Try running ffmpeg and ffprobe to check if they exist
+        subprocess.run(["ffmpeg", "-version"], check=True, stdout=subprocess.PIPE)
+        subprocess.run(["ffprobe", "-version"], check=True, stdout=subprocess.PIPE)
+        print("FFmpeg and FFprobe are available.")
+    except subprocess.CalledProcessError as e:
+        # FFmpeg/FFprobe are not installed, so we need to install them
+        st.error("FFmpeg or FFprobe not found. Installing now...")
+        subprocess.run(["bash", "setup.sh"], check=True)  # Run the shell script
+        st.success("FFmpeg and FFprobe installation successful.")
+
+# Call this function at the start of your app
+check_ffmpeg_installation()
+
 def check_ffmpeg_and_ffprobe():
     ffmpeg_exe = ffmpeg.get_ffmpeg_exe()
     ffprobe_exe = shutil.which("ffprobe")  # Using shutil to check if ffprobe exists in the PATH
