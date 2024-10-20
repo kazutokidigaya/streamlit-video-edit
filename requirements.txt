@@ -6,3 +6,4 @@ gtts
 assemblyai
 groq
 soundfile
+python-dotenv
